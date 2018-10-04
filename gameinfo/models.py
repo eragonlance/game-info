@@ -50,7 +50,6 @@ class Game(models.Model):
     publisher = models.ForeignKey(Publisher, on_delete=models.PROTECT)
     engine = models.CharField(max_length=20, blank=True)
     genres = models.ManyToManyField(Genre)
-    releases = models.ManyToManyField(Platform, through="Release")
 
     def __str__(self):
         return self.name
@@ -63,11 +62,15 @@ class Release(models.Model):
     """
 
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    platform = models.ForeignKey(Platform, on_delete=models.PROTECT)
+    platforms = models.ManyToManyField(Platform)
     date_released = models.DateField()
 
+    def getPlatformString(self):
+        # pylint: disable=no-member
+        return ", ".join(str(p) for p in self.platforms.all())
+
     def __str__(self):
-        return f"{self.game} ({self.platform} - {self.date_released})"
+        return f"{self.game} - {self.date_released} - {self.getPlatformString()}"
 
 
 class Url(models.Model):
